@@ -85,7 +85,7 @@ import sys.FileSystem;
 
 		#else
 
-		data = '{"name":null,"assets":"aoy4:pathy22:assets%2Falt_tiles.pngy4:sizei1049y4:typey5:IMAGEy2:idR1y7:preloadtgoR0y23:assets%2Fauto_tiles.pngR2i1037R3R4R5R7R6tgoR0y24:assets%2Fdefault_alt.txtR2i850R3y4:TEXTR5R8R6tgoR0y25:assets%2Fdefault_auto.txtR2i850R3R9R5R10R6tgoR0y26:assets%2Fdefault_empty.txtR2i850R3R9R5R11R6tgoR0y24:assets%2Fempty_tiles.pngR2i892R3R4R5R12R6tgoR0y23:assets%2Ffull_tiles.pngR2i790R3R4R5R13R6tgoR0y14:assets%2FO.pngR2i4613R3R4R5R14R6tgoR0y21:assets%2Fspaceman.pngR2i1361R3R4R5R15R6tgoR0y14:assets%2FX.pngR2i26578R3R4R5R16R6tgoR2i8220R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR18y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R17R5y28:flixel%2Fsounds%2Fflixel.mp3R19aR21y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i6840R3y5:SOUNDR5R20R19aR18R20hgoR2i33629R3R23R5R22R19aR21R22hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R24R25y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R4R5R30R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R4R5R31R6tgh","rootPath":null,"version":2,"libraryArgs":[],"libraryType":null}';
+		data = '{"name":null,"assets":"aoy4:pathy22:assets%2Falt_tiles.pngy4:sizei1049y4:typey5:IMAGEy2:idR1y7:preloadtgoR0y23:assets%2Fauto_tiles.pngR2i1037R3R4R5R7R6tgoR0y25:assets%2Fbowling-ball.pngR2i60418R3R4R5R8R6tgoR0y24:assets%2Fdefault_alt.txtR2i850R3y4:TEXTR5R9R6tgoR0y25:assets%2Fdefault_auto.txtR2i850R3R10R5R11R6tgoR0y26:assets%2Fdefault_empty.txtR2i850R3R10R5R12R6tgoR0y24:assets%2Fempty_tiles.pngR2i892R3R4R5R13R6tgoR0y23:assets%2Ffull_tiles.pngR2i790R3R4R5R14R6tgoR0y21:assets%2Fspaceman.pngR2i1361R3R4R5R15R6tgoR2i8220R3y5:MUSICR5y26:flixel%2Fsounds%2Fbeep.mp3y9:pathGroupaR17y26:flixel%2Fsounds%2Fbeep.ogghR6tgoR2i39706R3R16R5y28:flixel%2Fsounds%2Fflixel.mp3R18aR20y28:flixel%2Fsounds%2Fflixel.ogghR6tgoR2i6840R3y5:SOUNDR5R19R18aR17R19hgoR2i33629R3R22R5R21R18aR20R21hgoR2i15744R3y4:FONTy9:classNamey35:__ASSET__flixel_fonts_nokiafc22_ttfR5y30:flixel%2Ffonts%2Fnokiafc22.ttfR6tgoR2i29724R3R23R24y36:__ASSET__flixel_fonts_monsterrat_ttfR5y31:flixel%2Ffonts%2Fmonsterrat.ttfR6tgoR0y33:flixel%2Fimages%2Fui%2Fbutton.pngR2i519R3R4R5R29R6tgoR0y36:flixel%2Fimages%2Flogo%2Fdefault.pngR2i3280R3R4R5R30R6tgh","rootPath":null,"version":2,"libraryArgs":[],"libraryType":null}';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("default", library);
@@ -115,14 +115,13 @@ null
 
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_alt_tiles_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_auto_tiles_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_bowling_ball_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_default_alt_txt extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_default_auto_txt extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_default_empty_txt extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_empty_tiles_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_full_tiles_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_o_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_spaceman_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_x_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__flixel_sounds_beep_mp3 extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__flixel_sounds_flixel_mp3 extends null { }
 @:keep @:bind @:noCompletion #if display private #end class __ASSET__flixel_sounds_beep_ogg extends null { }
@@ -138,14 +137,13 @@ null
 
 @:keep @:image("assets/alt_tiles.png") @:noCompletion #if display private #end class __ASSET__assets_alt_tiles_png extends lime.graphics.Image {}
 @:keep @:image("assets/auto_tiles.png") @:noCompletion #if display private #end class __ASSET__assets_auto_tiles_png extends lime.graphics.Image {}
+@:keep @:image("assets/bowling-ball.png") @:noCompletion #if display private #end class __ASSET__assets_bowling_ball_png extends lime.graphics.Image {}
 @:keep @:file("assets/default_alt.txt") @:noCompletion #if display private #end class __ASSET__assets_default_alt_txt extends haxe.io.Bytes {}
 @:keep @:file("assets/default_auto.txt") @:noCompletion #if display private #end class __ASSET__assets_default_auto_txt extends haxe.io.Bytes {}
 @:keep @:file("assets/default_empty.txt") @:noCompletion #if display private #end class __ASSET__assets_default_empty_txt extends haxe.io.Bytes {}
 @:keep @:image("assets/empty_tiles.png") @:noCompletion #if display private #end class __ASSET__assets_empty_tiles_png extends lime.graphics.Image {}
 @:keep @:image("assets/full_tiles.png") @:noCompletion #if display private #end class __ASSET__assets_full_tiles_png extends lime.graphics.Image {}
-@:keep @:image("assets/O.png") @:noCompletion #if display private #end class __ASSET__assets_o_png extends lime.graphics.Image {}
 @:keep @:image("assets/spaceman.png") @:noCompletion #if display private #end class __ASSET__assets_spaceman_png extends lime.graphics.Image {}
-@:keep @:image("assets/X.png") @:noCompletion #if display private #end class __ASSET__assets_x_png extends lime.graphics.Image {}
 @:keep @:file("C:/HaxeToolkit/haxe/lib/flixel/5,3,1/assets/sounds/beep.mp3") @:noCompletion #if display private #end class __ASSET__flixel_sounds_beep_mp3 extends haxe.io.Bytes {}
 @:keep @:file("C:/HaxeToolkit/haxe/lib/flixel/5,3,1/assets/sounds/flixel.mp3") @:noCompletion #if display private #end class __ASSET__flixel_sounds_flixel_mp3 extends haxe.io.Bytes {}
 @:keep @:file("C:/HaxeToolkit/haxe/lib/flixel/5,3,1/assets/sounds/beep.ogg") @:noCompletion #if display private #end class __ASSET__flixel_sounds_beep_ogg extends haxe.io.Bytes {}

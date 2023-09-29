@@ -20,6 +20,12 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
+		var bowling_ball = new FlxSprite(0, 0);
+		bowling_ball.loadGraphic("assets/bowling-ball.png");
+		bowling_ball.screenCenter();
+		bowling_ball.setGraphicSize(Math.round(bowling_ball.width / 2), Math.round(bowling_ball.height / 2));
+
+		add(bowling_ball);
 	}
 
 	override public function update(elapsed:Float):Void

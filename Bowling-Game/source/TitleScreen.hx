@@ -13,13 +13,13 @@ class TitleScreen extends FlxState
 	override public function create():Void
 	{
 		super.create();
-		titleText = new FlxText(0, 0, FlxG.width / 2, "Tic\nTac\nToe");
-		titleText.setFormat(null, 64, FlxColor.ORANGE);
+		titleText = new FlxText(0, 0, FlxG.width / 2, "Bowling\nGame");
+		titleText.setFormat(null, 32, FlxColor.ORANGE);
 		titleText.screenCenter();
 		titleText.x -= 40;
 		add(titleText);
 
-		play_button = new FlxButton(0, 0, "2 Player", play);
+		play_button = new FlxButton(0, 0, "Play", play);
 		play_button.screenCenter();
 		play_button.x += 80;
 		play_button.y -= 50;
