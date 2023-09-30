@@ -24,6 +24,7 @@ class PlayState extends FlxState
 	{
 		super.create();
 		bgColor = FlxColor.fromRGB(156, 117, 56, 255);
+
 		var bowling_ball = new FlxSprite(0, 0);
 		bowling_ball.loadGraphic("assets/Bowling-Ball-Spritesheet.png", true, 64, 64);
 		bowling_ball.screenCenter();
