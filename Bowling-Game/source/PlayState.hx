@@ -34,13 +34,12 @@ class PlayState extends FlxState
 		bowling_ball.loadGraphic("assets/Bowling-Ball-Spritesheet.png", true, 64, 64);
 		bowling_ball.screenCenter();
 		bowling_ball.setGraphicSize(Math.round(bowling_ball.width), Math.round(bowling_ball.height));
-		// bowling_ball.x += 20;
+		bowling_ball.x += 30;
 		bowling_ball.y += 100;
+		bowling_ball.mass = 10;
 		bowling_ball.allowCollisions = ANY;
-		// bowling_ball.collisionXDrag = CollisionDragType.IMMOVABLE;
-		// bowling_ball.collisionYDrag = CollisionDragType.IMMOVABLE;
 		bowling_ball.velocity.y = -100;
-		bowling_ball.velocity.x -= 1;
+		bowling_ball.velocity.x -= 10;
 		add(bowling_ball);
 
 		pins = new FlxGroup();
@@ -51,9 +50,13 @@ class PlayState extends FlxState
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
+
+		// check for collisions between pins and ball or pins and pins
 		FlxG.overlap(bowling_ball, pins, separateCircle);
 		FlxG.overlap(pins, pins, separateCircle);
-		bowling_ball.velocity.y = -100;
+
+		// Throw ball
+		bowling_ball.velocity.y = -150;
 	}
 
 	public function create_pins():Void
@@ -64,16 +67,29 @@ class PlayState extends FlxState
 			// i+1 pins per row
 			for (pin_count in 0...i + 1)
 			{
+				// Create pin sprite
 				var pin = new FlxSprite(0, 0);
 				pin.loadGraphic("assets/top-pin.png", false, 0, 0, true);
+
+				// Center on screen
 				pin.screenCenter();
+
+				// Place in correct spots
 				pin.y -= 80 + 60 * i;
 				pin.x += 70 * pin_count - 35 * i;
+
+				// Resize pin and update hitbox
 				pin.setGraphicSize(Math.round(pin.width / 1.2), Math.round(pin.height / 1.2));
 				pin.updateHitbox();
+
+				// Allow collisions
 				pin.allowCollisions = ANY;
-				pin.drag.x = 10;
-				pin.drag.y = 10;
+
+				// Apply drag
+				pin.drag.x = 6;
+				pin.drag.y = 6;
+
+				// add pin to pins group
 				pins.add(pin);
 			}
 		}
@@ -99,28 +115,20 @@ class PlayState extends FlxState
 		var dot = dx * vx + dy * vy;
 
 		// If circles overlap and are moving toward each other...
-		if (distanceSquared < totalRadius * totalRadius && dot >= 0)
+		if (distanceSquared < totalRadius * totalRadius && dot > 0)
 		{
-			// Get normalized tangent vector
-			var tangentVector = new FlxPoint(circle2.y - circle1.y, -(circle2.x - circle1.x));
-			tangentVector = tangentVector.normalize();
+			var d = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) + Math.pow(circle1.y - circle2.y, 2));
+			var nx = (circle2.x - circle1.x) / d;
+			var ny = (circle2.y - circle1.y) / d;
 
-			// Determine relative velocity
-			var relativeVelocity = new FlxPoint(circle2.velocity.x - circle1.velocity.x, circle2.velocity.y - circle1.velocity.y);
-			var length = relativeVelocity.dot(tangentVector);
+			var p = 2 * (circle1.velocity.x * nx + circle1.velocity.y * ny - circle2.velocity.x * nx - circle2.velocity.y * ny) / (circle1.mass + circle2.mass);
 
-			// set tangent vector to correct length for velocity calculation
-			var velocityComponentOnTangent = tangentVector * length;
+			// mass is now backwards but works?
+			circle1.velocity.x -= p * circle2.mass * nx;
+			circle1.velocity.y -= p * circle2.mass * ny;
 
-			// get velocity perpendicular to our tangent line
-			var velocityComponentPerpendicularToTangent = relativeVelocity - velocityComponentOnTangent;
-
-			// Apply velocity to circles
-			circle1.velocity.x += velocityComponentPerpendicularToTangent.x;
-			circle1.velocity.y += velocityComponentPerpendicularToTangent.y;
-
-			circle2.velocity.x -= velocityComponentPerpendicularToTangent.x;
-			circle2.velocity.y -= velocityComponentPerpendicularToTangent.y;
+			circle2.velocity.x += p * circle1.mass * nx;
+			circle2.velocity.y += p * circle1.mass * ny;
 
 			return true;
 		}
