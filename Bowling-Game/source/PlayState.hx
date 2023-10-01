@@ -34,13 +34,13 @@ class PlayState extends FlxState
 		bowling_ball.loadGraphic("assets/Bowling-Ball-Spritesheet.png", true, 64, 64);
 		bowling_ball.screenCenter();
 		bowling_ball.setGraphicSize(Math.round(bowling_ball.width), Math.round(bowling_ball.height));
-		bowling_ball.x += 20;
+		// bowling_ball.x += 20;
 		bowling_ball.y += 100;
 		bowling_ball.allowCollisions = ANY;
 		// bowling_ball.collisionXDrag = CollisionDragType.IMMOVABLE;
 		// bowling_ball.collisionYDrag = CollisionDragType.IMMOVABLE;
 		bowling_ball.velocity.y = -100;
-		bowling_ball.velocity.x -= 10;
+		bowling_ball.velocity.x -= 1;
 		add(bowling_ball);
 
 		pins = new FlxGroup();
@@ -99,7 +99,7 @@ class PlayState extends FlxState
 		var dot = dx * vx + dy * vy;
 
 		// If circles overlap and are moving toward each other...
-		if (distanceSquared < totalRadius * totalRadius && dot > 0)
+		if (distanceSquared < totalRadius * totalRadius && dot >= 0)
 		{
 			// Get normalized tangent vector
 			var tangentVector = new FlxPoint(circle2.y - circle1.y, -(circle2.x - circle1.x));
@@ -120,7 +120,7 @@ class PlayState extends FlxState
 			circle1.velocity.y += velocityComponentPerpendicularToTangent.y;
 
 			circle2.velocity.x -= velocityComponentPerpendicularToTangent.x;
-			circle2.velocity.y -= velocityComponentPerpendicularToTangent.x;
+			circle2.velocity.y -= velocityComponentPerpendicularToTangent.y;
 
 			return true;
 		}
