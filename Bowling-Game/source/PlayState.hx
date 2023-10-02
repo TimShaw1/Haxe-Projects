@@ -22,25 +22,34 @@ class PlayState extends FlxState
 	var bowling_ball:FlxSprite;
 	var pins:FlxGroup;
 	var lane_sprite:FlxSprite;
+
+	var gutter_sprite_left:FlxSprite;
+	var gutter_sprite_right:FlxSprite;
+
+	var wall_left:FlxSprite;
+	var wall_right:FlxSprite;
+
 	var ball_thrown = false;
 
 	var mouse_start:FlxPoint;
 	var mouse_end:FlxPoint;
 	var move_time:Float;
 
-	var time_since_epoch:Float = 0;
+	var seconds_since_epoch:Float = 0;
 	var release_flag:Bool = false;
 
 	override public function create():Void
 	{
 		super.create();
-		bgColor = FlxColor.fromRGB(156, 117, 56, 255);
+		bgColor = FlxColor.BLACK;
 
 		var lane_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2), FlxG.height, FlxColor.fromRGB(221, 178, 105));
 		lane_sprite = new FlxSprite(FlxG.width / 2 - lane_rect.width / 2, 0, lane_rect);
 		add(lane_sprite);
 
 		create_gutters();
+
+		create_walls();
 
 		create_bowling_ball();
 
@@ -50,22 +59,31 @@ class PlayState extends FlxState
 
 	override public function update(elapsed:Float):Void
 	{
-		time_since_epoch += elapsed;
+		seconds_since_epoch += elapsed;
 		super.update(elapsed);
-		if (ball_thrown && FlxG.mouse.pressed && !release_flag)
+
+		if (bowling_ball.y < -64)
+			reset_scene();
+
+		trace(bowling_ball.velocity);
+
+		if (ball_thrown && FlxG.mouse.pressed && !release_flag && FlxG.mouse.y > 550)
 		{
 			bowling_ball.x = FlxG.mouse.x - bowling_ball.width / 2;
 			bowling_ball.y = FlxG.mouse.y - bowling_ball.height / 2;
 		}
-		else if (!ball_thrown && !FlxG.mouse.pressed)
+		else if (!ball_thrown
+			&& !FlxG.mouse.pressed
+			&& FlxG.mouse.x > gutter_sprite_left.x + gutter_sprite_left.width
+			&& FlxG.mouse.x < gutter_sprite_right.x)
 			bowling_ball.x = FlxG.mouse.x - bowling_ball.width / 2;
-		else if (!ball_thrown && FlxG.mouse.pressed)
+		else if (!ball_thrown && FlxG.mouse.pressed && bowling_ball.overlapsPoint(FlxG.mouse.getPosition()))
 		{
 			mouse_start = FlxG.mouse.getPosition();
 			if (FlxG.mouse.justMoved)
 			{
 				ball_thrown = true;
-				move_time = time_since_epoch;
+				move_time = seconds_since_epoch;
 			}
 			else
 				ball_thrown = false;
@@ -73,13 +91,33 @@ class PlayState extends FlxState
 		else if (ball_thrown && FlxG.mouse.justReleased)
 		{
 			mouse_end = FlxG.mouse.getPosition();
-			bowling_ball.velocity.x = -(mouse_start.x - mouse_end.x) / (time_since_epoch - move_time);
-			bowling_ball.velocity.y = -(mouse_start.y - mouse_end.y) / (time_since_epoch - move_time);
+			bowling_ball.velocity.x = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
+			bowling_ball.velocity.y = (-(mouse_start.y - mouse_end.y) / (seconds_since_epoch - move_time)) / 2;
+
+			if (bowling_ball.velocity.y < -1000)
+				bowling_ball.velocity.y = -1000;
+
 			release_flag = true;
 		}
 		// check for collisions between pins and ball or pins and pins
 		FlxG.overlap(bowling_ball, pins, separateCircle);
 		FlxG.overlap(pins, pins, separateCircle);
+		FlxG.overlap(bowling_ball, gutter_sprite_left, gutter_collision);
+		FlxG.overlap(bowling_ball, gutter_sprite_right, gutter_collision);
+		FlxG.collide(bowling_ball, wall_left);
+		FlxG.collide(bowling_ball, wall_right);
+	}
+
+	public function create_walls()
+	{
+		var wall_rect = FlxGraphic.fromRectangle(200, FlxG.height, FlxColor.fromRGB(156, 117, 56, 255));
+		wall_left = new FlxSprite(gutter_sprite_left.x - wall_rect.width, 0, wall_rect);
+		wall_left.immovable = true;
+		wall_right = new FlxSprite(gutter_sprite_right.x + gutter_sprite_right.width, 0, wall_rect);
+		wall_right.immovable = true;
+
+		add(wall_left);
+		add(wall_right);
 	}
 
 	public function create_bowling_ball()
@@ -150,8 +188,8 @@ class PlayState extends FlxState
 	public function create_gutters()
 	{
 		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height, FlxColor.GRAY);
-		var gutter_sprite_left = new FlxSprite(lane_sprite.x - gutter_rect.width, 0, gutter_rect);
-		var gutter_sprite_right = new FlxSprite(lane_sprite.x + lane_sprite.width, 0, gutter_rect);
+		gutter_sprite_left = new FlxSprite(lane_sprite.x - gutter_rect.width, 0, gutter_rect);
+		gutter_sprite_right = new FlxSprite(lane_sprite.x + lane_sprite.width, 0, gutter_rect);
 
 		add(gutter_sprite_left);
 		add(gutter_sprite_right);
@@ -198,5 +236,22 @@ class PlayState extends FlxState
 		}
 
 		return false;
+	}
+
+	public function gutter_collision(ball:FlxSprite, gutter:FlxSprite):Bool
+	{
+		if (gutter.overlapsPoint(ball.getMidpoint()))
+		{
+			if (Math.abs(ball.getMidpoint().x - gutter.getMidpoint().x) < 10)
+				ball.velocity.x = 0;
+			return true;
+		}
+
+		return false;
+	}
+
+	public function reset_scene()
+	{
+		FlxG.resetState();
 	}
 }
