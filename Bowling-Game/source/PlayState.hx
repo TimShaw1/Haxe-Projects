@@ -20,7 +20,7 @@ import openfl.Assets;
 class PlayState extends FlxState
 {
 	var bowling_ball:FlxSprite;
-	var pins:FlxGroup;
+	var pins:FlxTypedGroup<FlxSprite>;
 	var lane_sprite:FlxSprite;
 
 	var gutter_sprite_left:FlxSprite;
@@ -47,7 +47,7 @@ class PlayState extends FlxState
 		lane_sprite = new FlxSprite(FlxG.width / 2 - lane_rect.width / 2, 0, lane_rect);
 		add(lane_sprite);
 
-		create_gutters();
+		create_and_draw_gutters();
 
 		create_walls();
 
@@ -62,10 +62,8 @@ class PlayState extends FlxState
 		seconds_since_epoch += elapsed;
 		super.update(elapsed);
 
-		if (bowling_ball.y < -64)
+		if (bowling_ball.y < -128)
 			reset_scene();
-
-		trace(bowling_ball.velocity);
 
 		if (ball_thrown && FlxG.mouse.pressed && !release_flag && FlxG.mouse.y > 550)
 		{
@@ -88,7 +86,7 @@ class PlayState extends FlxState
 			else
 				ball_thrown = false;
 		}
-		else if (ball_thrown && FlxG.mouse.justReleased)
+		else if (ball_thrown && FlxG.mouse.justReleased && !release_flag)
 		{
 			mouse_end = FlxG.mouse.getPosition();
 			bowling_ball.velocity.x = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
@@ -100,19 +98,33 @@ class PlayState extends FlxState
 			release_flag = true;
 		}
 		// check for collisions between pins and ball or pins and pins
-		FlxG.overlap(bowling_ball, pins, separateCircle);
-		FlxG.overlap(pins, pins, separateCircle);
+		FlxG.overlap(bowling_ball, pins, collide_circles);
+		FlxG.overlap(pins, pins, collide_circles);
 		FlxG.overlap(bowling_ball, gutter_sprite_left, gutter_collision);
 		FlxG.overlap(bowling_ball, gutter_sprite_right, gutter_collision);
 		FlxG.collide(bowling_ball, wall_left);
 		FlxG.collide(bowling_ball, wall_right);
+
+		// FlxG.collide(pins, wall_left);
+		// FlxG.collide(pins, wall_right);
+
+		for (pin in pins)
+		{
+			if (FlxG.overlap(pin, wall_left) || FlxG.overlap(pin, wall_right))
+			{
+				pin.velocity.x *= -1;
+				pin.x += pin.velocity.x / 60;
+			}
+		}
 	}
 
 	public function create_walls()
 	{
 		var wall_rect = FlxGraphic.fromRectangle(200, FlxG.height, FlxColor.fromRGB(156, 117, 56, 255));
+
 		wall_left = new FlxSprite(gutter_sprite_left.x - wall_rect.width, 0, wall_rect);
 		wall_left.immovable = true;
+
 		wall_right = new FlxSprite(gutter_sprite_right.x + gutter_sprite_right.width, 0, wall_rect);
 		wall_right.immovable = true;
 
@@ -122,24 +134,7 @@ class PlayState extends FlxState
 
 	public function create_bowling_ball()
 	{
-		bowling_ball = new FlxSprite(0, 0);
-
-		// Load bowling ball sprite and center/size it
-		bowling_ball.loadGraphic("assets/Bowling-Ball-Spritesheet.png", true, 64, 64);
-		bowling_ball.screenCenter();
-		bowling_ball.setGraphicSize(Math.round(bowling_ball.width), Math.round(bowling_ball.height));
-
-		// position ball
-		// bowling_ball.x += 40;
-		bowling_ball.y += 300;
-
-		// Set ball mass and allow collisions
-		bowling_ball.mass = 10;
-		bowling_ball.allowCollisions = ANY;
-
-		// Throw ball
-		// bowling_ball.velocity.y = -300;
-		// bowling_ball.velocity.x -= 10;
+		bowling_ball = new BowlingBall();
 
 		// Add ball to scene
 		add(bowling_ball);
@@ -147,7 +142,7 @@ class PlayState extends FlxState
 
 	public function create_pins():Void
 	{
-		pins = new FlxGroup();
+		pins = new FlxTypedGroup<FlxSprite>();
 
 		// 4 columns
 		for (i in 0...4)
@@ -156,28 +151,11 @@ class PlayState extends FlxState
 			for (pin_count in 0...i + 1)
 			{
 				// Create pin sprite
-				var pin = new FlxSprite(0, 0);
-				pin.loadGraphic("assets/top-pin.png", false, 0, 0, true);
-
-				// Center on screen
-				pin.screenCenter();
+				var pin = new BowlingPin();
 
 				// Place in correct spots
 				pin.y -= 100 + 50 * i;
 				pin.x += 60 * pin_count - 30 * i + 10;
-
-				// Resize pin and update hitbox
-				pin.setGraphicSize(Math.round(pin.width / 1.5), Math.round(pin.height / 1.5));
-				pin.updateHitbox();
-
-				// Allow collisions
-				pin.allowCollisions = ANY;
-
-				// Apply drag
-				pin.drag.x = 3;
-				pin.drag.y = 3;
-
-				pin.mass = 3;
 
 				// add pin to pins group
 				pins.add(pin);
@@ -185,9 +163,10 @@ class PlayState extends FlxState
 		}
 	}
 
-	public function create_gutters()
+	public function create_and_draw_gutters()
 	{
 		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height, FlxColor.GRAY);
+
 		gutter_sprite_left = new FlxSprite(lane_sprite.x - gutter_rect.width, 0, gutter_rect);
 		gutter_sprite_right = new FlxSprite(lane_sprite.x + lane_sprite.width, 0, gutter_rect);
 
@@ -195,7 +174,7 @@ class PlayState extends FlxState
 		add(gutter_sprite_right);
 	}
 
-	public static function separateCircle(circle1:FlxSprite, circle2:FlxSprite):Bool
+	public static function collide_circles(circle1:FlxSprite, circle2:FlxSprite):Bool
 	{
 		// Determine max distance between center of circles
 		var totalRadius:Float = circle1.width / 2 + circle2.width / 2;
