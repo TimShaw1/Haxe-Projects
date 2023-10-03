@@ -19,8 +19,8 @@ import openfl.Assets;
 
 class PlayState extends FlxState
 {
-	var bowling_ball:FlxSprite;
-	var pins:FlxTypedGroup<FlxSprite>;
+	var bowling_ball:BowlingBall;
+	var pins:FlxTypedGroup<BowlingPin>;
 	var lane_sprite:FlxSprite;
 
 	var gutter_sprite_left:FlxSprite;
@@ -29,14 +29,7 @@ class PlayState extends FlxState
 	var wall_left:FlxSprite;
 	var wall_right:FlxSprite;
 
-	var ball_thrown = false;
-
-	var mouse_start:FlxPoint;
-	var mouse_end:FlxPoint;
-	var move_time:Float;
-
 	var seconds_since_epoch:Float = 0;
-	var release_flag:Bool = false;
 
 	override public function create():Void
 	{
@@ -65,38 +58,8 @@ class PlayState extends FlxState
 		if (bowling_ball.y < -128)
 			reset_scene();
 
-		if (ball_thrown && FlxG.mouse.pressed && !release_flag && FlxG.mouse.y > 550)
-		{
-			bowling_ball.x = FlxG.mouse.x - bowling_ball.width / 2;
-			bowling_ball.y = FlxG.mouse.y - bowling_ball.height / 2;
-		}
-		else if (!ball_thrown
-			&& !FlxG.mouse.pressed
-			&& FlxG.mouse.x > gutter_sprite_left.x + gutter_sprite_left.width
-			&& FlxG.mouse.x < gutter_sprite_right.x)
-			bowling_ball.x = FlxG.mouse.x - bowling_ball.width / 2;
-		else if (!ball_thrown && FlxG.mouse.pressed && bowling_ball.overlapsPoint(FlxG.mouse.getPosition()))
-		{
-			mouse_start = FlxG.mouse.getPosition();
-			if (FlxG.mouse.justMoved)
-			{
-				ball_thrown = true;
-				move_time = seconds_since_epoch;
-			}
-			else
-				ball_thrown = false;
-		}
-		else if (ball_thrown && FlxG.mouse.justReleased && !release_flag)
-		{
-			mouse_end = FlxG.mouse.getPosition();
-			bowling_ball.velocity.x = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
-			bowling_ball.velocity.y = (-(mouse_start.y - mouse_end.y) / (seconds_since_epoch - move_time)) / 2;
+		bowling_ball.update_ball(seconds_since_epoch, gutter_sprite_left, gutter_sprite_right);
 
-			if (bowling_ball.velocity.y < -1000)
-				bowling_ball.velocity.y = -1000;
-
-			release_flag = true;
-		}
 		// check for collisions between pins and ball or pins and pins
 		FlxG.overlap(bowling_ball, pins, collide_circles);
 		FlxG.overlap(pins, pins, collide_circles);
@@ -142,7 +105,7 @@ class PlayState extends FlxState
 
 	public function create_pins():Void
 	{
-		pins = new FlxTypedGroup<FlxSprite>();
+		pins = new FlxTypedGroup<BowlingPin>();
 
 		// 4 columns
 		for (i in 0...4)
@@ -178,8 +141,8 @@ class PlayState extends FlxState
 	{
 		// Determine max distance between center of circles
 		var totalRadius:Float = circle1.width / 2 + circle2.width / 2;
-		var c1 = circle1.getMidpoint(FlxPoint.weak());
-		var c2 = circle2.getMidpoint(FlxPoint.weak());
+		var c1 = circle1.getMidpoint();
+		var c2 = circle2.getMidpoint();
 
 		// Get squared distance between circle midpoints. We square here to avoid a slow square root.
 		var distanceSquared:Float = (c1.x - c2.x) * (c1.x - c2.x) + (c1.y - c2.y) * (c1.y - c2.y);
@@ -196,6 +159,7 @@ class PlayState extends FlxState
 		// If circles overlap and are moving toward each other...
 		if (distanceSquared < totalRadius * totalRadius && dot >= 0)
 		{
+			// Distance between circles
 			var d = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) + Math.pow(circle1.y - circle2.y, 2));
 			var nx = (circle2.x - circle1.x) / d;
 			var ny = (circle2.y - circle1.y) / d;
