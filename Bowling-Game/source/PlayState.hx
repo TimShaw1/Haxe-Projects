@@ -31,6 +31,10 @@ class PlayState extends FlxState
 
 	var seconds_since_epoch:Float = 0;
 
+	var frame_num = 1;
+	var frame_scores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // 12 frames if strikes on 10th
+	var frame_display = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]; // total score or X or O
+
 	override public function create():Void
 	{
 		super.create();
@@ -56,7 +60,12 @@ class PlayState extends FlxState
 		super.update(elapsed);
 
 		if (bowling_ball.y < -128)
-			reset_scene();
+		{
+			if (bowling_ball.throw_counter < 2)
+				re_place_pins_and_ball();
+			else
+				set_frame();
+		}
 
 		bowling_ball.update_ball(seconds_since_epoch, gutter_sprite_left, gutter_sprite_right);
 
@@ -68,11 +77,9 @@ class PlayState extends FlxState
 		FlxG.collide(bowling_ball, wall_left);
 		FlxG.collide(bowling_ball, wall_right);
 
-		// FlxG.collide(pins, wall_left);
-		// FlxG.collide(pins, wall_right);
-
 		for (pin in pins)
 		{
+			pin.check_knocked_over();
 			if (FlxG.overlap(pin, wall_left) || FlxG.overlap(pin, wall_right))
 			{
 				pin.velocity.x *= -1;
@@ -98,6 +105,7 @@ class PlayState extends FlxState
 	public function create_bowling_ball()
 	{
 		bowling_ball = new BowlingBall();
+		bowling_ball.reset_ball();
 
 		// Add ball to scene
 		add(bowling_ball);
@@ -118,7 +126,10 @@ class PlayState extends FlxState
 
 				// Place in correct spots
 				pin.y -= 100 + 50 * i;
-				pin.x += 60 * pin_count - 30 * i + 10;
+				pin.x += 80 * pin_count - 40 * i + 10;
+
+				pin.original_position.x = pin.x;
+				pin.original_position.y = pin.y;
 
 				// add pin to pins group
 				pins.add(pin);
@@ -139,6 +150,8 @@ class PlayState extends FlxState
 
 	public static function collide_circles(circle1:FlxSprite, circle2:FlxSprite):Bool
 	{
+		if (circle1.allowCollisions == NONE || circle2.allowCollisions == NONE)
+			return false;
 		// Determine max distance between center of circles
 		var totalRadius:Float = circle1.width / 2 + circle2.width / 2;
 		var c1 = circle1.getMidpoint();
@@ -193,8 +206,37 @@ class PlayState extends FlxState
 		return false;
 	}
 
-	public function reset_scene()
+	public function re_place_pins_and_ball()
 	{
-		FlxG.resetState();
+		var knocked_pin_counter = 0;
+		// FlxG.resetState();
+		for (pin in pins)
+		{
+			if (pin.knocked_over)
+				knocked_pin_counter += 1;
+			pin.reset_pin();
+		}
+
+		// Do strikes and spares here
+		if (knocked_pin_counter == 10)
+			set_frame();
+		bowling_ball.reset_ball();
+	}
+
+	public function set_frame()
+	{
+		// FlxG.resetState();
+		for (pin in pins)
+		{
+			if (pin.knocked_over)
+				frame_scores[frame_num - 1] += 1;
+			pin.knocked_over = false;
+			pin.reset_pin();
+		}
+		bowling_ball.full_reset_ball();
+		if (frame_num < 10)
+			frame_num += 1;
+		// else show score
+		trace(frame_scores);
 	}
 }

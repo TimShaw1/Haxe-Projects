@@ -12,6 +12,8 @@ class BowlingBall extends FlxSprite
 	var mouse_end:FlxPoint;
 	var move_time:Float;
 
+	public var throw_counter:Int = 0;
+
 	public function new()
 	{
 		super(0, 0);
@@ -40,7 +42,8 @@ class BowlingBall extends FlxSprite
 			&& FlxG.mouse.x > gutter_sprite_left.x + gutter_sprite_left.width
 			&& FlxG.mouse.x < gutter_sprite_right.x)
 			this.x = FlxG.mouse.x - this.width / 2;
-		else if (!ball_thrown && FlxG.mouse.pressed && this.overlapsPoint(FlxG.mouse.getPosition()))
+		// this.overlapsPoint(FlxG.mouse.getPosition())
+		else if (!ball_thrown && FlxG.mouse.pressed && FlxG.mouse.getPosition().y > 500)
 		{
 			mouse_start = FlxG.mouse.getPosition();
 			if (FlxG.mouse.justMoved)
@@ -54,13 +57,40 @@ class BowlingBall extends FlxSprite
 		else if (ball_thrown && FlxG.mouse.justReleased && !release_flag)
 		{
 			mouse_end = FlxG.mouse.getPosition();
-			this.velocity.x = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
-			this.velocity.y = (-(mouse_start.y - mouse_end.y) / (seconds_since_epoch - move_time)) / 2;
+			var xVelocity = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
+			var yVelocity = (-(mouse_start.y - mouse_end.y) / (seconds_since_epoch - move_time)) / 2;
+			if (yVelocity < -30)
+			{
+				this.velocity.x = xVelocity;
+				this.velocity.y = yVelocity;
 
-			if (this.velocity.y < -1000)
-				this.velocity.y = -1000;
+				if (this.velocity.y < -1000)
+					this.velocity.y = -1000;
 
-			release_flag = true;
+				release_flag = true;
+				throw_counter += 1;
+			}
+			else
+			{
+				this.reset_ball();
+			}
 		}
+	}
+
+	public function reset_ball()
+	{
+		ball_thrown = false;
+		release_flag = false;
+
+		this.screenCenter();
+		this.y += 300;
+		this.velocity.x = 0;
+		this.velocity.y = 0;
+	}
+
+	public function full_reset_ball()
+	{
+		this.throw_counter = 0;
+		this.reset_ball();
 	}
 }
