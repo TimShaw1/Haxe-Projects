@@ -16,6 +16,7 @@ import flixel.util.FlxSpriteUtil;
 import flixel.util.FlxStringUtil;
 import haxe.Timer;
 import openfl.Assets;
+import openfl.text.Font;
 
 class PlayState extends FlxState
 {
@@ -291,7 +292,7 @@ class PlayState extends FlxState
 		bowling_ball.full_reset_ball();
 
 		// Increment frame count if we aren't done
-		if (frame_num < 10 || (frame_num < 12 && frame_scores[frame_num - 1].y == 10))
+		if (frame_num < 9 || (frame_num < 12 && frame_scores[frame_num - 1].y == 10))
 			frame_num += 1;
 		// else end game
 		else
@@ -322,7 +323,7 @@ class PlayState extends FlxState
 				}
 				else
 				{
-					current_score = 10 + frame_scores[i + 1].x; // 1 strike case
+					current_score = 10 + frame_scores[i + 1].y; // 1 strike case
 				}
 			}
 			else if (frame_display[i] == "O")
@@ -334,14 +335,14 @@ class PlayState extends FlxState
 				current_score = frame_scores[i].y;
 			}
 			score += current_score;
-			frames_score_text.text += score + " ";
+			frames_score_text.text += score + "  ";
 			if (score / 10 < 1)
 			{
 				frames_score_text.text += "  ";
 			}
 			if (score / 10 < 10)
 			{
-				frames_score_text.text += "  ";
+				frames_score_text.text += " ";
 			}
 		}
 
@@ -364,20 +365,20 @@ class PlayState extends FlxState
 			else
 			{
 				if (point.x != 10)
-					score_text += point.x + "  " + frame_display[i] + " ";
+					score_text += point.x + "  " + frame_display[i] + "  ";
 				else
-					score_text += "    " + frame_display[i] + " ";
+					score_text += "    " + frame_display[i] + "  ";
 			}
 		}
 		score_text += frame_display[9];
 		if (frame_display[10] != "0")
 			score_text += frame_display[10];
 		else
-			score_text += " ";
+			score_text += "  ";
 		if (frame_display[11] != "0")
 			score_text += frame_display[11];
 		else
-			score_text += " ";
+			score_text += "  ";
 
 		return score_text;
 	}
@@ -399,9 +400,8 @@ class PlayState extends FlxState
 
 		var score_text = new FlxText(0, 0, 0, generate_score_text());
 		score_text.screenCenter();
-		score_text.scale.x *= 2.6;
-		score_text.scale.y *= 2.6;
-		score_text.x -= 5;
+		score_text.scale.x *= 2.68;
+		score_text.scale.y *= 2.68;
 		score_text.y -= 18;
 		add(score_text);
 
