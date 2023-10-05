@@ -31,6 +31,8 @@ class PlayState extends FlxState
 
 	var seconds_since_epoch:Float = 0;
 
+	var game_ended:Bool = false;
+
 	var frame_num = 1;
 	var frame_scores = [
 		new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0),
@@ -55,7 +57,7 @@ class PlayState extends FlxState
 		create_pins();
 		add(pins);
 
-		trace(calculate_final_score());
+		// end_game();
 	}
 
 	/**
@@ -68,6 +70,9 @@ class PlayState extends FlxState
 		seconds_since_epoch += elapsed;
 
 		super.update(elapsed);
+
+		if (game_ended)
+			return;
 
 		if (bowling_ball.y < -128)
 		{
@@ -278,11 +283,9 @@ class PlayState extends FlxState
 
 		// Handle displaying strikes/spares
 		if (frame_scores[frame_num - 1].y == 10)
-			frame_display[frame_num - 1] = bowling_ball.throw_counter == 1 ? "X" : "O";
-
-		// Display score if not strike/spare
+			frame_display[frame_num - 1] = bowling_ball.throw_counter == 1 || frame_num == 12 ? "X" : "O";
 		else
-			frame_display[frame_num - 1] = Std.string(frame_scores[frame_num - 1].y);
+			frame_display[frame_num - 1] = Std.string(frame_scores[frame_num - 1].y); // Display score if not strike/spare
 
 		// Fully reset ball
 		bowling_ball.full_reset_ball();
@@ -293,8 +296,7 @@ class PlayState extends FlxState
 		// else end game
 		else
 		{
-			trace(calculate_final_score());
-			FlxG.switchState(new TitleScreen());
+			end_game();
 		}
 
 		// 12th frame only gets 1 throw
@@ -306,31 +308,108 @@ class PlayState extends FlxState
 		trace(frame_display);
 	}
 
-	public function calculate_final_score():Int
+	public function calculate_final_score(frames_score_text:FlxText):Int
 	{
 		var score:Float = 0;
 		for (i in 0...10)
 		{
+			var current_score:Float = 0;
 			if (frame_display[i] == "X")
 			{
 				if (frame_display[i + 1] == "X")
 				{
-					score += 20 + frame_scores[i + 2].x; // 2/3 strike case
+					current_score = 20 + frame_scores[i + 2].x; // 2/3 strike case
 				}
 				else
 				{
-					score += 10 + frame_scores[i + 1].x; // 1 strike case
+					current_score = 10 + frame_scores[i + 1].x; // 1 strike case
 				}
 			}
 			else if (frame_display[i] == "O")
 			{
-				score += 10 + frame_scores[i + 1].x; // spare case
+				current_score = 10 + frame_scores[i + 1].x; // spare case
 			}
 			else
 			{
-				score += frame_scores[i].y;
+				current_score = frame_scores[i].y;
+			}
+			score += current_score;
+			frames_score_text.text += score + " ";
+			if (score / 10 < 1)
+			{
+				frames_score_text.text += "  ";
+			}
+			if (score / 10 < 10)
+			{
+				frames_score_text.text += "  ";
 			}
 		}
+
 		return Math.round(score);
+	}
+
+	public function generate_score_text():String
+	{
+		var score_text = "";
+		for (i in 0...9)
+		{
+			var point = frame_scores[i];
+			if (i != 8)
+			{
+				if (point.x != 10)
+					score_text += point.x + "  " + frame_display[i] + "    ";
+				else
+					score_text += "    " + frame_display[i] + "    ";
+			}
+			else
+			{
+				if (point.x != 10)
+					score_text += point.x + "  " + frame_display[i] + " ";
+				else
+					score_text += "    " + frame_display[i] + " ";
+			}
+		}
+		score_text += frame_display[9];
+		if (frame_display[10] != "0")
+			score_text += frame_display[10];
+		else
+			score_text += " ";
+		if (frame_display[11] != "0")
+			score_text += frame_display[11];
+		else
+			score_text += " ";
+
+		return score_text;
+	}
+
+	public function end_game()
+	{
+		var frames_score_text = new FlxText(0, 0, 256, "");
+		trace(calculate_final_score(frames_score_text));
+		game_ended = true;
+		var dim_rect = new FlxSprite(0, 0);
+		dim_rect.loadGraphic(FlxGraphic.fromRectangle(FlxG.width, FlxG.height, FlxColor.fromRGB(0, 0, 0, 127)));
+		add(dim_rect);
+		var frames_sprite = new FlxSprite(0, 0);
+		frames_sprite.loadGraphic("assets/Bowling_Frames_Sprite.png");
+		frames_sprite.screenCenter();
+		frames_sprite.scale.x *= 1.25;
+		frames_sprite.scale.y *= 1.25;
+		add(frames_sprite);
+
+		var score_text = new FlxText(0, 0, 0, generate_score_text());
+		score_text.screenCenter();
+		score_text.scale.x *= 2.6;
+		score_text.scale.y *= 2.6;
+		score_text.x -= 5;
+		score_text.y -= 18;
+		add(score_text);
+
+		frames_score_text.screenCenter();
+		frames_score_text.scale.x *= 3.8;
+		frames_score_text.scale.y *= 3.8;
+		frames_score_text.x += 90;
+		frames_score_text.y += 14;
+		add(frames_score_text);
 	}
 }
