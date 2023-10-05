@@ -20,7 +20,7 @@ class ApplicationMain
 
 		#if (js && html5)
 		#if (munit || utest)
-		lime.system.System.embed("Tilemap", null, 600, 800);
+		lime.system.System.embed("Tilemap", null, 800, 800);
 		#end
 		#else
 		create(null);
@@ -35,7 +35,7 @@ class ApplicationMain
 		ManifestResources.init(config);
 		#end
 
-		app.meta["build"] = "422";
+		app.meta["build"] = "442";
 		app.meta["company"] = "HaxeFlixel";
 		app.meta["file"] = "Tilemap";
 		app.meta["name"] = "Tilemap";
@@ -61,7 +61,7 @@ class ApplicationMain
 			parameters: {},
 			resizable: true,
 			title: "Tilemap",
-			width: 600,
+			width: 800,
 			x: null,
 			y: null,
 		};

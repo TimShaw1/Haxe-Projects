@@ -32,7 +32,9 @@ class PlayState extends FlxState
 	var seconds_since_epoch:Float = 0;
 
 	var frame_num = 1;
-	var frame_scores = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // 12 frames if strikes on 10th
+	var frame_scores = [
+		new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0),
+		new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0), new FlxPoint(0, 0)]; // 11-12 frames if strikes/spare on 10th
 	var frame_display = ["0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"]; // total score or X or O
 
 	override public function create():Void
@@ -40,7 +42,7 @@ class PlayState extends FlxState
 		super.create();
 		bgColor = FlxColor.BLACK;
 
-		var lane_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2), FlxG.height, FlxColor.fromRGB(221, 178, 105));
+		var lane_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2.5), FlxG.height, FlxColor.fromRGB(221, 178, 105));
 		lane_sprite = new FlxSprite(FlxG.width / 2 - lane_rect.width / 2, 0, lane_rect);
 		add(lane_sprite);
 
@@ -52,11 +54,19 @@ class PlayState extends FlxState
 
 		create_pins();
 		add(pins);
+
+		trace(calculate_final_score());
 	}
 
+	/**
+	 * Handles updating physics and collision
+	 * @param elapsed how long the last frame took
+	 */
 	override public function update(elapsed:Float):Void
 	{
+		// Useful for physics calculations
 		seconds_since_epoch += elapsed;
+
 		super.update(elapsed);
 
 		if (bowling_ball.y < -128)
@@ -88,6 +98,9 @@ class PlayState extends FlxState
 		}
 	}
 
+	/**
+	 * Creates and draws the walls
+	 */
 	public function create_walls()
 	{
 		var wall_rect = FlxGraphic.fromRectangle(200, FlxG.height, FlxColor.fromRGB(156, 117, 56, 255));
@@ -102,6 +115,9 @@ class PlayState extends FlxState
 		add(wall_right);
 	}
 
+	/**
+	 * Creates and draws the bowling ball
+	 */
 	public function create_bowling_ball()
 	{
 		bowling_ball = new BowlingBall();
@@ -111,6 +127,9 @@ class PlayState extends FlxState
 		add(bowling_ball);
 	}
 
+	/**
+	 * Creates and draws 10 pins in a group.
+	 */
 	public function create_pins():Void
 	{
 		pins = new FlxTypedGroup<BowlingPin>();
@@ -137,6 +156,9 @@ class PlayState extends FlxState
 		}
 	}
 
+	/**
+	 * Creates and draws the gutters
+	 */
 	public function create_and_draw_gutters()
 	{
 		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height, FlxColor.GRAY);
@@ -148,6 +170,12 @@ class PlayState extends FlxState
 		add(gutter_sprite_right);
 	}
 
+	/**
+	 * Custom circle collision
+	 * @param circle1 a circular FlxSprite
+	 * @param circle2 a circular FlxSprite
+	 * @return true if collision, else false
+	 */
 	public static function collide_circles(circle1:FlxSprite, circle2:FlxSprite):Bool
 	{
 		if (circle1.allowCollisions == NONE || circle2.allowCollisions == NONE)
@@ -194,6 +222,12 @@ class PlayState extends FlxState
 		return false;
 	}
 
+	/**
+	 * Handles ball colliding with gutter by setting ball's x velocity to 0
+	 * @param ball the ball
+	 * @param gutter the gutter
+	 * @return true if collision
+	 */
 	public function gutter_collision(ball:FlxSprite, gutter:FlxSprite):Bool
 	{
 		if (gutter.overlapsPoint(ball.getMidpoint()))
@@ -206,10 +240,12 @@ class PlayState extends FlxState
 		return false;
 	}
 
+	/**
+	 * Sets up pins and ball for second throw of a frame
+	 */
 	public function re_place_pins_and_ball()
 	{
 		var knocked_pin_counter = 0;
-		// FlxG.resetState();
 		for (pin in pins)
 		{
 			if (pin.knocked_over)
@@ -217,26 +253,84 @@ class PlayState extends FlxState
 			pin.reset_pin();
 		}
 
-		// Do strikes and spares here
+		frame_scores[frame_num - 1].x += knocked_pin_counter;
+
 		if (knocked_pin_counter == 10)
+		{
 			set_frame();
+		}
 		bowling_ball.reset_ball();
 	}
 
+	/**
+	 * Sets up pins and ball for new frame
+	 */
 	public function set_frame()
 	{
-		// FlxG.resetState();
+		// reset pins
 		for (pin in pins)
 		{
 			if (pin.knocked_over)
-				frame_scores[frame_num - 1] += 1;
+				frame_scores[frame_num - 1].y += 1;
 			pin.knocked_over = false;
 			pin.reset_pin();
 		}
+
+		// Handle displaying strikes/spares
+		if (frame_scores[frame_num - 1].y == 10)
+			frame_display[frame_num - 1] = bowling_ball.throw_counter == 1 ? "X" : "O";
+
+		// Display score if not strike/spare
+		else
+			frame_display[frame_num - 1] = Std.string(frame_scores[frame_num - 1].y);
+
+		// Fully reset ball
 		bowling_ball.full_reset_ball();
-		if (frame_num < 10)
+
+		// Increment frame count if we aren't done
+		if (frame_num < 10 || (frame_num < 12 && frame_scores[frame_num - 1].y == 10))
 			frame_num += 1;
-		// else show score
+		// else end game
+		else
+		{
+			trace(calculate_final_score());
+			FlxG.switchState(new TitleScreen());
+		}
+
+		// 12th frame only gets 1 throw
+		if (frame_num == 12)
+			bowling_ball.throw_counter = 1;
+
+		// show score
 		trace(frame_scores);
+		trace(frame_display);
+	}
+
+	public function calculate_final_score():Int
+	{
+		var score:Float = 0;
+		for (i in 0...10)
+		{
+			if (frame_display[i] == "X")
+			{
+				if (frame_display[i + 1] == "X")
+				{
+					score += 20 + frame_scores[i + 2].x; // 2/3 strike case
+				}
+				else
+				{
+					score += 10 + frame_scores[i + 1].x; // 1 strike case
+				}
+			}
+			else if (frame_display[i] == "O")
+			{
+				score += 10 + frame_scores[i + 1].x; // spare case
+			}
+			else
+			{
+				score += frame_scores[i].y;
+			}
+		}
+		return Math.round(score);
 	}
 }
