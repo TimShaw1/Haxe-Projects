@@ -292,8 +292,17 @@ class PlayState extends FlxState
 		bowling_ball.full_reset_ball();
 
 		// Increment frame count if we aren't done
-		if (frame_num < 9 || (frame_num < 12 && frame_scores[frame_num - 1].y == 10))
+		if (frame_num < 9)
 			frame_num += 1;
+		else if (frame_num < 12)
+			if (frame_display[frame_num - 1] == "X")
+				frame_num += 1;
+			else if (frame_display[frame_num - 1] == "O" && frame_num == 9)
+				frame_num += 1;
+			else
+			{
+				end_game();
+			}
 		// else end game
 		else
 		{
@@ -312,37 +321,57 @@ class PlayState extends FlxState
 	public function calculate_final_score(frames_score_text:FlxText):Int
 	{
 		var score:Float = 0;
-		for (i in 0...10)
+		for (i in 0...12)
 		{
 			var current_score:Float = 0;
-			if (frame_display[i] == "X")
+			if (i < 9)
 			{
-				if (frame_display[i + 1] == "X")
+				if (frame_display[i] == "X")
 				{
-					current_score = 20 + frame_scores[i + 2].x; // 2/3 strike case
+					if (frame_display[i + 1] == "X")
+					{
+						current_score = 20 + frame_scores[i + 2].x; // 2/3 strike case
+					}
+					else
+					{
+						current_score = 10 + frame_scores[i + 1].y; // 1 strike case
+					}
+				}
+				else if (frame_display[i] == "O")
+				{
+					current_score = 10 + frame_scores[i + 1].x; // spare case
 				}
 				else
 				{
-					current_score = 10 + frame_scores[i + 1].y; // 1 strike case
+					current_score = frame_scores[i].y;
 				}
-			}
-			else if (frame_display[i] == "O")
-			{
-				current_score = 10 + frame_scores[i + 1].x; // spare case
+				score += current_score;
+				frames_score_text.text += score + "  ";
+				if (score / 10 < 1)
+				{
+					frames_score_text.text += "  ";
+				}
+				if (score / 10 < 10)
+				{
+					frames_score_text.text += " ";
+				}
 			}
 			else
 			{
 				current_score = frame_scores[i].y;
-			}
-			score += current_score;
-			frames_score_text.text += score + "  ";
-			if (score / 10 < 1)
-			{
-				frames_score_text.text += "  ";
-			}
-			if (score / 10 < 10)
-			{
-				frames_score_text.text += " ";
+				score += current_score;
+				if (i == 11)
+				{
+					frames_score_text.text += score + "  ";
+					if (score / 10 < 1)
+					{
+						frames_score_text.text += "  ";
+					}
+					if (score / 10 < 10)
+					{
+						frames_score_text.text += " ";
+					}
+				}
 			}
 		}
 
