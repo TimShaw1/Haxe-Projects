@@ -29,12 +29,18 @@ class BowlingPin extends FlxSprite
 		this.mass = 3;
 	}
 
+	/**
+	 * Checks if the pin was knocked over
+	 */
 	public function check_knocked_over()
 	{
 		if (Math.abs(this.velocity.x) > 80 || Math.abs(this.velocity.y) > 80)
 			this.knocked_over = true;
 	}
 
+	/**
+	 * Resets the pin
+	 */
 	public function reset_pin()
 	{
 		if (!this.knocked_over)

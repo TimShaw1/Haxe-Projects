@@ -480,6 +480,7 @@ class PlayState extends FlxState
 		frames_score_text.y += 14;
 		add(frames_score_text);
 
+		// Create a button to return to title screen
 		var title_button;
 		title_button = new FlxButton(0, 0, "Title Screen", back_to_title);
 		title_button.screenCenter();
@@ -489,6 +490,9 @@ class PlayState extends FlxState
 		add(title_button);
 	}
 
+	/**
+	 * Returns the game to the title screen
+	 */
 	public function back_to_title()
 	{
 		FlxG.switchState(new TitleScreen());

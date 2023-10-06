@@ -29,23 +29,33 @@ class BowlingBall extends FlxSprite
 		this.allowCollisions = ANY;
 	}
 
-	/** TODO: Refactor this later pls */
+	/**
+	 * Updates the ball
+	 * @param seconds_since_epoch how long since the scene started
+	 * @param gutter_sprite_left the left gutter
+	 * @param gutter_sprite_right the right gutter
+	 */
 	public function update_ball(seconds_since_epoch:Float, gutter_sprite_left:FlxSprite, gutter_sprite_right:FlxSprite)
 	{
+		// Ball follows mouse when mouse is pressed (not when thrown tho)
 		if (ball_thrown && FlxG.mouse.pressed && !release_flag && FlxG.mouse.y > 500)
 		{
 			this.x = FlxG.mouse.x - this.width / 2;
 			this.y = FlxG.mouse.y - this.height / 2;
 		}
+		// Ball is not thrown and mouse is within bounds -> ball follows mouse left/right only
 		else if (!ball_thrown
 			&& !FlxG.mouse.pressed
 			&& FlxG.mouse.x > gutter_sprite_left.x + gutter_sprite_left.width
 			&& FlxG.mouse.x < gutter_sprite_right.x)
 			this.x = FlxG.mouse.x - this.width / 2;
-		// this.overlapsPoint(FlxG.mouse.getPosition())
+		// Ball is being thrown
 		else if (!ball_thrown && FlxG.mouse.pressed && FlxG.mouse.getPosition().y > 500)
 		{
+			// Get mouse start position for throw physics later
 			mouse_start = FlxG.mouse.getPosition();
+
+			// If mouse moves, get time when it moved.
 			if (FlxG.mouse.justMoved)
 			{
 				ball_thrown = true;
@@ -54,22 +64,33 @@ class BowlingBall extends FlxSprite
 			else
 				ball_thrown = false;
 		}
+		// Throw ball when mouse released
 		else if (ball_thrown && FlxG.mouse.justReleased && !release_flag)
 		{
+			// Get where mouse was released
 			mouse_end = FlxG.mouse.getPosition();
+
+			// Calculate ball velocity
 			var xVelocity = (-(mouse_start.x - mouse_end.x) / (seconds_since_epoch - move_time)) / 2;
 			var yVelocity = (-(mouse_start.y - mouse_end.y) / (seconds_since_epoch - move_time)) / 2;
+
+			// If valid y velocity,
 			if (yVelocity < -30)
 			{
+				// Set velocity
 				this.velocity.x = xVelocity;
 				this.velocity.y = yVelocity;
 
+				// Ensure ball is not going too fast
 				if (this.velocity.y < -1000)
 					this.velocity.y = -1000;
 
 				release_flag = true;
+
+				// Increment throw count
 				throw_counter += 1;
 			}
+			// Otherwise reset the ball
 			else
 			{
 				this.reset_ball();
@@ -77,6 +98,9 @@ class BowlingBall extends FlxSprite
 		}
 	}
 
+	/**
+	 * Resets the ball's position and velocity
+	 */
 	public function reset_ball()
 	{
 		ball_thrown = false;
@@ -88,6 +112,9 @@ class BowlingBall extends FlxSprite
 		this.velocity.y = 0;
 	}
 
+	/**
+	 * Resets throw count and calls reset_ball()
+	 */
 	public function full_reset_ball()
 	{
 		this.throw_counter = 0;
