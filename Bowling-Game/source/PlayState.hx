@@ -45,6 +45,7 @@ class PlayState extends FlxState
 		super.create();
 		bgColor = FlxColor.BLACK;
 
+		// Create the lane graphic
 		var lane_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2.5), FlxG.height, FlxColor.fromRGB(221, 178, 105));
 		lane_sprite = new FlxSprite(FlxG.width / 2 - lane_rect.width / 2, 0, lane_rect);
 		add(lane_sprite);
@@ -57,8 +58,6 @@ class PlayState extends FlxState
 
 		create_pins();
 		add(pins);
-
-		// end_game();
 	}
 
 	/**
@@ -75,6 +74,7 @@ class PlayState extends FlxState
 		if (game_ended)
 			return;
 
+		// Throw is done
 		if (bowling_ball.y < -128)
 		{
 			if (bowling_ball.throw_counter < 2)
@@ -88,14 +88,19 @@ class PlayState extends FlxState
 		// check for collisions between pins and ball or pins and pins
 		FlxG.overlap(bowling_ball, pins, collide_circles);
 		FlxG.overlap(pins, pins, collide_circles);
+
+		// check for collisions between ball and gutters
 		FlxG.overlap(bowling_ball, gutter_sprite_left, gutter_collision);
 		FlxG.overlap(bowling_ball, gutter_sprite_right, gutter_collision);
+
+		// collide ball with walls
 		FlxG.collide(bowling_ball, wall_left);
 		FlxG.collide(bowling_ball, wall_right);
 
 		for (pin in pins)
 		{
 			pin.check_knocked_over();
+			// Collide pins with walls
 			if (FlxG.overlap(pin, wall_left) || FlxG.overlap(pin, wall_right))
 			{
 				pin.velocity.x *= -1;
@@ -167,6 +172,7 @@ class PlayState extends FlxState
 	 */
 	public function create_and_draw_gutters()
 	{
+		// Create gutter graphic
 		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height, FlxColor.GRAY);
 
 		gutter_sprite_left = new FlxSprite(lane_sprite.x - gutter_rect.width, 0, gutter_rect);
@@ -208,14 +214,16 @@ class PlayState extends FlxState
 		{
 			// Distance between circles
 			var d = Math.sqrt(Math.pow(circle1.x - circle2.x, 2) + Math.pow(circle1.y - circle2.y, 2));
+
+			// Credit to https://ericleong.me/research/circle-circle/ for the fancy math
 			var nx = (circle2.x - circle1.x) / d;
 			var ny = (circle2.y - circle1.y) / d;
 
-			var dampening_factor = 1.5;
+			var dampening_factor = 1.5; // 2 is no dampening
 			var p = dampening_factor * (circle1.velocity.x * nx + circle1.velocity.y * ny - circle2.velocity.x * nx - circle2.velocity.y * ny) / (circle1.mass
 				+ circle2.mass);
 
-			// mass is now backwards but works?
+			// Apply velocities on collision, accounting for mass
 			circle1.velocity.x -= p * circle2.mass * nx;
 			circle1.velocity.y -= p * circle2.mass * ny;
 
@@ -261,6 +269,7 @@ class PlayState extends FlxState
 
 		frame_scores[frame_num - 1].x += knocked_pin_counter;
 
+		// Next frame if we knocked over all pins
 		if (knocked_pin_counter == 10)
 		{
 			set_frame();
@@ -318,12 +327,21 @@ class PlayState extends FlxState
 		trace(frame_display);
 	}
 
+	/**
+	 * Calculates the player's final score
+	 * @param frames_score_text the scoring text to be displayed at the end
+	 * @return The final score
+	 */
 	public function calculate_final_score(frames_score_text:FlxText):Int
 	{
 		var score:Float = 0;
+
+		// Loop through each frame
 		for (i in 0...12)
 		{
 			var current_score:Float = 0;
+
+			// Frame 1-9
 			if (i < 9)
 			{
 				if (frame_display[i] == "X")
@@ -343,9 +361,13 @@ class PlayState extends FlxState
 				}
 				else
 				{
-					current_score = frame_scores[i].y;
+					current_score = frame_scores[i].y; // Score only case
 				}
+
+				// Add frame score to total score
 				score += current_score;
+
+				// Format text for each frame
 				frames_score_text.text += score + "  ";
 				if (score / 10 < 1)
 				{
@@ -356,10 +378,13 @@ class PlayState extends FlxState
 					frames_score_text.text += " ";
 				}
 			}
+			// 10th frame scoring
 			else
 			{
 				current_score = frame_scores[i].y;
 				score += current_score;
+
+				// Only draw score after last frame is calculated
 				if (i == 11)
 				{
 					frames_score_text.text += score + "  ";
@@ -375,9 +400,14 @@ class PlayState extends FlxState
 			}
 		}
 
+		// Hack to cast score to int
 		return Math.round(score);
 	}
 
+	/**
+	 * Generates the text for displaying each throw's score
+	 * @return String
+	 */
 	public function generate_score_text():String
 	{
 		var score_text = "";
@@ -414,12 +444,19 @@ class PlayState extends FlxState
 
 	public function end_game()
 	{
+		// Initialize the per-frame score display text
 		var frames_score_text = new FlxText(0, 0, 256, "");
-		trace(calculate_final_score(frames_score_text));
+		calculate_final_score(frames_score_text);
+
+		// Game has ended
 		game_ended = true;
+
+		// Rectangle for dimming screen
 		var dim_rect = new FlxSprite(0, 0);
 		dim_rect.loadGraphic(FlxGraphic.fromRectangle(FlxG.width, FlxG.height, FlxColor.fromRGB(0, 0, 0, 127)));
 		add(dim_rect);
+
+		// Load and format frames sprite to display scores
 		var frames_sprite = new FlxSprite(0, 0);
 		frames_sprite.loadGraphic("assets/Bowling_Frames_Sprite.png");
 		frames_sprite.screenCenter();
@@ -427,6 +464,7 @@ class PlayState extends FlxState
 		frames_sprite.scale.y *= 1.25;
 		add(frames_sprite);
 
+		// Create text for per-throw scores
 		var score_text = new FlxText(0, 0, 0, generate_score_text());
 		score_text.screenCenter();
 		score_text.scale.x *= 2.68;
@@ -434,11 +472,25 @@ class PlayState extends FlxState
 		score_text.y -= 18;
 		add(score_text);
 
+		// Format text for frame aggregate scores
 		frames_score_text.screenCenter();
 		frames_score_text.scale.x *= 3.8;
 		frames_score_text.scale.y *= 3.8;
 		frames_score_text.x += 90;
 		frames_score_text.y += 14;
 		add(frames_score_text);
+
+		var title_button;
+		title_button = new FlxButton(0, 0, "Title Screen", back_to_title);
+		title_button.screenCenter();
+		title_button.y += 180;
+		title_button.setGraphicSize(Math.round(title_button.width * 2), Math.round(title_button.height * 2));
+
+		add(title_button);
+	}
+
+	public function back_to_title()
+	{
+		FlxG.switchState(new TitleScreen());
 	}
 }
