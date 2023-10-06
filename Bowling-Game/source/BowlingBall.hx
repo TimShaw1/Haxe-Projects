@@ -27,6 +27,8 @@ class BowlingBall extends FlxSprite
 		// Set ball mass and allow collisions
 		this.mass = 10;
 		this.allowCollisions = ANY;
+		animation.add("idle", [0], 0);
+		animation.add("roll", [0, 1, 2, 3, 4, 5, 6, 7], 15);
 	}
 
 	/**
@@ -89,6 +91,10 @@ class BowlingBall extends FlxSprite
 
 				// Increment throw count
 				throw_counter += 1;
+
+				animation.remove("roll");
+				animation.add("roll", [0, 1, 2, 3, 4, 5, 6, 7], Math.round(30 * Math.abs(this.velocity.y / 1000)));
+				animation.play("roll");
 			}
 			// Otherwise reset the ball
 			else
@@ -105,6 +111,7 @@ class BowlingBall extends FlxSprite
 	{
 		ball_thrown = false;
 		release_flag = false;
+		animation.play("idle");
 
 		this.screenCenter();
 		this.y += 300;
