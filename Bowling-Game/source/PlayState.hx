@@ -43,12 +43,16 @@ class PlayState extends FlxState
 	override public function create():Void
 	{
 		super.create();
-		bgColor = FlxColor.BLACK;
+		bgColor = FlxColor.fromRGB(156, 117, 56, 255);
 
 		// Create the lane graphic
 		var lane_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2.5), FlxG.height, FlxColor.fromRGB(221, 178, 105));
 		lane_sprite = new FlxSprite(FlxG.width / 2 - lane_rect.width / 2, 0, lane_rect);
 		add(lane_sprite);
+
+		var red_line_rect = FlxGraphic.fromRectangle(Math.round(FlxG.width / 2.5), 4, FlxColor.fromRGB(255, 0, 0));
+		var red_line_sprite = new FlxSprite(FlxG.width / 2 - red_line_rect.width / 2, 500, red_line_rect);
+		add(red_line_sprite);
 
 		create_and_draw_gutters();
 
@@ -173,7 +177,7 @@ class PlayState extends FlxState
 	public function create_and_draw_gutters()
 	{
 		// Create gutter graphic
-		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height, FlxColor.GRAY);
+		var gutter_rect = FlxGraphic.fromRectangle(74, FlxG.height - 300, FlxColor.GRAY);
 
 		gutter_sprite_left = new FlxSprite(lane_sprite.x - gutter_rect.width, 0, gutter_rect);
 		gutter_sprite_right = new FlxSprite(lane_sprite.x + lane_sprite.width, 0, gutter_rect);
