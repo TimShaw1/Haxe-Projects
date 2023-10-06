@@ -321,10 +321,6 @@ class PlayState extends FlxState
 		// 12th frame only gets 1 throw
 		if (frame_num == 12)
 			bowling_ball.throw_counter = 1;
-
-		// show score
-		trace(frame_scores);
-		trace(frame_display);
 	}
 
 	/**
