@@ -1,5 +1,5 @@
 # Bowling Game
-A simple bowling game for game programming class.
+A simple bowling game for game programming class. Not my cleanest GUI but it works haha
 
 ## Images
 <img width="595" alt="Title Screen" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/f243f9dd-0470-408a-91ea-d43a2377ba02">
