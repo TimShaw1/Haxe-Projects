@@ -92,6 +92,7 @@ class BowlingBall extends FlxSprite
 				// Increment throw count
 				throw_counter += 1;
 
+				// Set roll animation based on ball speed
 				animation.remove("roll");
 				animation.add("roll", [0, 1, 2, 3, 4, 5, 6, 7], Math.round(30 * Math.abs(this.velocity.y / 1000)));
 				animation.play("roll");
