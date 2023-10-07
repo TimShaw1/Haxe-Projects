@@ -1,13 +1,16 @@
 # Bowling Game
 A simple bowling game for game programming class. Not my cleanest GUI but it works haha.
 
-The ball is thrown by clicking and dragging the mouse in the direction you want to throw.
+## How to Play
+The ball is thrown by clicking and dragging the mouse on the ball in the direction you want to throw. (Mouse speed determines ball speed!)
 
 ## Images
 <img width="595" alt="Title Screen" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/f243f9dd-0470-408a-91ea-d43a2377ba02">
 
-<img width="595" alt="Throw 2" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/0e159195-3d62-4f44-b96e-479b04d0f412">
-<img width="595" alt="Throw 1" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/2b693cd8-4018-4283-8b7b-62660dc19f94">
 
-<img width="595" alt="Score 1" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/80c19d6a-a5ff-422a-bff4-787c0bbd804e">
-<img width="596" alt="Score 2" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/a9e8cec9-63ae-4bd4-9b0e-5842f6ed7ba4">
+<img width="595" alt="Throw 2" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/bbefdaa8-0a83-4ca4-9535-67543a86091b">
+<img width="595" alt="Throw 1" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/481de656-0b9e-4e26-ba6f-7ac668909882">
+
+
+<img width="598" alt="Score 1" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/2571def9-71a3-4537-a5e8-c8700507a510">
+<img width="597" alt="Score 2" src="https://github.com/TimShaw1/Haxe-Projects/assets/70497517/214c1892-a6c6-430d-b408-c6ae66107f43">
