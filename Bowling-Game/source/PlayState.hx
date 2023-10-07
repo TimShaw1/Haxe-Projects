@@ -368,7 +368,10 @@ class PlayState extends FlxState
 				score += current_score;
 
 				// Format text for each frame
-				frames_score_text.text += score + "  ";
+				if (score < 180)
+					frames_score_text.text += score + "  ";
+				else
+					frames_score_text.text += score + " ";
 				if (score / 10 < 1)
 				{
 					frames_score_text.text += "  ";
